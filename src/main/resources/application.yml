@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: order-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/orders}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  mvc:
+    problemdetails:
+      enabled: true
+
+app:
+  topics:
+    order-events: orders.events
+    payment-events: payments.events
+  dynamodb:
+    region: ${AWS_REGION:us-east-1}
+    endpoint: ${DYNAMODB_ENDPOINT:}
+    audit-table: order-audit
+    create-table: ${DYNAMODB_CREATE_TABLE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

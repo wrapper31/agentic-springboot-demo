@@ -1,0 +1,15 @@
+# Local dependencies for `mvn spring-boot:run`. Tests do not need this; they use Testcontainers.
+services:
+  mongodb:
+    image: mongo:7.0
+    ports: ["27017:27017"]
+
+  kafka:
+    image: apache/kafka:3.8.1
+    ports: ["9092:9092"]
+
+  localstack:
+    image: localstack/localstack:3.8
+    environment:
+      SERVICES: dynamodb
+    ports: ["4566:4566"]
