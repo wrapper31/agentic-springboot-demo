@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "codebase": {
+      "command": "tools/codebase-mcp/run.sh",
+      "args": ["."]
+    }
+  }
+}

@@ -21,6 +21,13 @@ mvn -B compile                                  # quick compile check
 Integration tests use Testcontainers (MongoDB, Kafka, LocalStack for DynamoDB) and need Docker.
 In Claude Code cloud sessions the SessionStart hook starts Docker for you.
 
+## Codebase MCP server
+
+`.mcp.json` registers `codebase` (source in `tools/codebase-mcp`). Prefer its tools over grepping
+when you need structure: `project_overview` first, then `list_rest_endpoints`, `list_kafka_topics`,
+`list_data_models`, and `describe_type <Name>` to see a type's users before changing it.
+Build and test it with `mvn -B -f tools/codebase-mcp/pom.xml verify`.
+
 ## Layout and layering rules
 
 ```

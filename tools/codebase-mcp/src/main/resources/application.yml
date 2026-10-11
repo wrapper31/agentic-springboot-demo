@@ -1,0 +1,23 @@
+# stdio transport: stdout carries JSON-RPC, so nothing else may be printed there.
+spring:
+  main:
+    web-application-type: none
+    banner-mode: off
+  ai:
+    mcp:
+      server:
+        name: codebase-mcp
+        version: 0.1.0
+        stdio: true
+        instructions: >
+          Structural knowledge about a Spring Boot codebase (REST endpoints, Kafka topics, data models, types).
+          Call project_overview first.
+
+logging:
+  threshold:
+    console: "OFF"
+  file:
+    name: ${java.io.tmpdir}/codebase-mcp.log
+
+codebase:
+  root: .

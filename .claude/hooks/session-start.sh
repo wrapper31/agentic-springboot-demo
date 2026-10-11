@@ -29,6 +29,9 @@ fi
 # Download all plugins and dependencies and compile, so later builds work from the cached ~/.m2.
 mvn -B -q dependency:resolve-plugins dependency:resolve test-compile
 
+# Build the codebase MCP server (.mcp.json) so it starts instantly.
+mvn -B -q -f tools/codebase-mcp/pom.xml package -DskipTests
+
 # Pre-pull the Testcontainers images so the first integration test run is fast.
 if docker info >/dev/null 2>&1; then
   for image in mongo:7.0 apache/kafka:3.8.1 localstack/localstack:3.8 testcontainers/ryuk:0.12.0; do

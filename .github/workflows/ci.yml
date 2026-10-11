@@ -16,5 +16,7 @@ jobs:
           java-version: '21'
           cache: maven
       # Integration tests start MongoDB, Kafka and LocalStack with Testcontainers (Docker is preinstalled on the runner).
-      - name: Build and test
+      - name: Build and test order-service
         run: mvn -B verify
+      - name: Build and test codebase MCP server
+        run: mvn -B -f tools/codebase-mcp/pom.xml verify

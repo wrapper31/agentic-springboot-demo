@@ -38,6 +38,12 @@ Every transition is saved to MongoDB, audited in DynamoDB, then published to `or
 | `orders.events` | produced, key = orderId | `OrderEvent` (`ORDER_CREATED`, `ORDER_STATUS_CHANGED`) |
 | `payments.events` | consumed | `PaymentEvent` (`SUCCEEDED` / `FAILED`) |
 
+## Agent tooling
+
+- `CLAUDE.md`: architecture, layering rules and conventions for AI coding agents.
+- `tools/codebase-mcp`: a Spring AI MCP server exposing endpoints, Kafka topics, data models and
+  type usages of any Spring Boot codebase. See its [README](tools/codebase-mcp/README.md).
+
 ## Build and test
 
 Requires Java 21 and Docker.
