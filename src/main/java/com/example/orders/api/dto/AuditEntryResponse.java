@@ -1,10 +1,11 @@
 package com.example.orders.api.dto;
 
-import com.example.orders.persistence.dynamo.OrderAuditRecord;
+import com.example.orders.domain.AuditEntry;
+import java.time.Instant;
 
-public record AuditEntryResponse(String occurredAt, String action, String detail) {
+public record AuditEntryResponse(Instant occurredAt, String action, String detail) {
 
-    public static AuditEntryResponse from(OrderAuditRecord record) {
-        return new AuditEntryResponse(record.getOccurredAt(), record.getAction(), record.getDetail());
+    public static AuditEntryResponse from(AuditEntry entry) {
+        return new AuditEntryResponse(entry.occurredAt(), entry.action(), entry.detail());
     }
 }

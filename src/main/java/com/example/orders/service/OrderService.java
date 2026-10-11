@@ -1,5 +1,6 @@
 package com.example.orders.service;
 
+import com.example.orders.domain.AuditEntry;
 import com.example.orders.domain.Order;
 import com.example.orders.domain.OrderItem;
 import com.example.orders.domain.OrderStatus;
@@ -73,9 +74,11 @@ public class OrderService {
         transition(order, next, payment.reason());
     }
 
-    public List<OrderAuditRecord> history(String orderId) {
+    public List<AuditEntry> history(String orderId) {
         get(orderId);
-        return audit.findByOrderId(orderId);
+        return audit.findByOrderId(orderId).stream()
+                .map(r -> new AuditEntry(r.getOrderId(), Instant.parse(r.getOccurredAt()), r.getAction(), r.getDetail()))
+                .toList();
     }
 
     private Order transition(Order order, OrderStatus next, String detail) {
