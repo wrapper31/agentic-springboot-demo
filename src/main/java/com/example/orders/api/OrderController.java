@@ -3,6 +3,7 @@ package com.example.orders.api;
 import com.example.orders.api.dto.AuditEntryResponse;
 import com.example.orders.api.dto.CreateOrderRequest;
 import com.example.orders.api.dto.OrderResponse;
+import com.example.orders.api.dto.ShipOrderRequest;
 import com.example.orders.domain.OrderItem;
 import com.example.orders.service.OrderService;
 import jakarta.validation.Valid;
@@ -49,6 +50,11 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public OrderResponse cancel(@PathVariable String orderId) {
         return OrderResponse.from(orderService.cancel(orderId));
+    }
+
+    @PostMapping("/{orderId}/ship")
+    public OrderResponse ship(@PathVariable String orderId, @Valid @RequestBody ShipOrderRequest request) {
+        return OrderResponse.from(orderService.ship(orderId, request.carrier(), request.trackingNumber()));
     }
 
     @GetMapping("/{orderId}/history")

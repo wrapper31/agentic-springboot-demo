@@ -25,6 +25,7 @@ class CodebaseAnalyzerTest {
                 "POST /api/orders",
                 "GET /api/orders/{orderId}",
                 "POST /api/orders/{orderId}/cancel",
+                "POST /api/orders/{orderId}/ship",
                 "GET /api/orders/{orderId}/history");
 
         Endpoint create = endpoints.stream().filter(e -> e.httpMethod().equals("POST") && e.path().equals("/api/orders")).findFirst().orElseThrow();

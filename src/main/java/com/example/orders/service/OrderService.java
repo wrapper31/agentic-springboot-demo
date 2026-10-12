@@ -4,6 +4,7 @@ import com.example.orders.domain.AuditEntry;
 import com.example.orders.domain.Order;
 import com.example.orders.domain.OrderItem;
 import com.example.orders.domain.OrderStatus;
+import com.example.orders.domain.Shipment;
 import com.example.orders.messaging.OrderEvent;
 import com.example.orders.messaging.OrderEventPublisher;
 import com.example.orders.messaging.PaymentEvent;
@@ -62,6 +63,15 @@ public class OrderService {
             throw new InvalidOrderStateException("Only CREATED orders can be cancelled, was " + order.status());
         }
         return transition(order, OrderStatus.CANCELLED, "cancelled by customer");
+    }
+
+    public Order ship(String orderId, String carrier, String trackingNumber) {
+        Order order = get(orderId);
+        if (order.status() != OrderStatus.PAID) {
+            throw new InvalidOrderStateException("Only PAID orders can be shipped, was " + order.status());
+        }
+        Shipment shipment = new Shipment(carrier, trackingNumber, clock.instant());
+        return transition(order.withShipment(shipment), OrderStatus.SHIPPED, carrier + " " + trackingNumber);
     }
 
     public void applyPaymentResult(PaymentEvent payment) {

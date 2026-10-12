@@ -44,7 +44,7 @@ class OrderFlowIntegrationTest {
     OrderEventsCollector collector;
 
     @Test
-    void orderIsCreatedThenPaidViaPaymentEvent() throws Exception {
+    void orderIsCreatedPaidViaPaymentEventThenShipped() throws Exception {
         var created = rest.postForEntity("/api/orders", Map.of(
                 "customerId", "cust-42",
                 "items", List.of(Map.of("sku", "BOOK-1", "quantity", 2, "unitPrice", 12.5))), OrderResponse.class);
@@ -62,9 +62,18 @@ class OrderFlowIntegrationTest {
                 assertThat(rest.getForObject("/api/orders/" + orderId, OrderResponse.class).status())
                         .isEqualTo(OrderStatus.PAID));
 
+        var shipped = rest.postForEntity("/api/orders/" + orderId + "/ship",
+                Map.of("carrier", "UPS", "trackingNumber", "1Z999"), OrderResponse.class);
+        assertThat(shipped.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(shipped.getBody().status()).isEqualTo(OrderStatus.SHIPPED);
+        assertThat(shipped.getBody().shipment().trackingNumber()).isEqualTo("1Z999");
+
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+                assertThat(collector.eventsFor(orderId)).extracting(OrderEvent::status).contains(OrderStatus.SHIPPED));
+
         List<AuditEntryResponse> history = rest.exchange("/api/orders/" + orderId + "/history", HttpMethod.GET, null,
                 new ParameterizedTypeReference<List<AuditEntryResponse>>() {}).getBody();
-        assertThat(history).extracting(AuditEntryResponse::action).containsExactly("CREATED", "PAID");
+        assertThat(history).extracting(AuditEntryResponse::action).containsExactly("CREATED", "PAID", "SHIPPED");
     }
 
     @TestConfiguration
