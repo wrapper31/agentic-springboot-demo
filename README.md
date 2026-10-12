@@ -18,7 +18,7 @@ domain (Order, OrderItem, OrderStatus: plain records, no framework types)
 config (AppProperties, DynamoDB client/table, Kafka topics, Clock)
 ```
 
-Order lifecycle: `CREATED -> PAID | PAYMENT_FAILED`, or `CREATED -> CANCELLED`.
+Order lifecycle: `CREATED -> PAID -> SHIPPED`, `CREATED -> PAYMENT_FAILED`, or `CREATED -> CANCELLED`.
 Every transition is saved to MongoDB, audited in DynamoDB, then published to `orders.events`.
 
 ## API
@@ -29,6 +29,7 @@ Every transition is saved to MongoDB, audited in DynamoDB, then published to `or
 | GET | `/api/orders/{id}` | Get an order |
 | GET | `/api/orders?customerId=` | List a customer's orders |
 | POST | `/api/orders/{id}/cancel` | Cancel a `CREATED` order |
+| POST | `/api/orders/{id}/ship` | Ship a `PAID` order (`carrier`, `trackingNumber`) |
 | GET | `/api/orders/{id}/history` | Audit history from DynamoDB |
 
 ## Kafka

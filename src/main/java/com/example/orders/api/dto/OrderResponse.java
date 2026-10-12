@@ -2,6 +2,7 @@ package com.example.orders.api.dto;
 
 import com.example.orders.domain.Order;
 import com.example.orders.domain.OrderStatus;
+import com.example.orders.domain.Shipment;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -13,9 +14,19 @@ public record OrderResponse(
         BigDecimal total,
         OrderStatus status,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        ShipmentResponse shipment) {
 
     public record Item(String sku, int quantity, BigDecimal unitPrice) {}
+
+    public record ShipmentResponse(String carrier, String trackingNumber, Instant shippedAt) {
+
+        static ShipmentResponse from(Shipment shipment) {
+            return shipment == null
+                    ? null
+                    : new ShipmentResponse(shipment.carrier(), shipment.trackingNumber(), shipment.shippedAt());
+        }
+    }
 
     public static OrderResponse from(Order order) {
         return new OrderResponse(
@@ -25,6 +36,7 @@ public record OrderResponse(
                 order.total(),
                 order.status(),
                 order.createdAt(),
-                order.updatedAt());
+                order.updatedAt(),
+                ShipmentResponse.from(order.shipment()));
     }
 }

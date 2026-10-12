@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.example.orders.domain.Order;
 import com.example.orders.domain.OrderItem;
 import com.example.orders.domain.OrderStatus;
+import com.example.orders.domain.Shipment;
 import com.example.orders.messaging.OrderEvent;
 import com.example.orders.messaging.OrderEventPublisher;
 import com.example.orders.messaging.PaymentEvent;
@@ -63,6 +64,28 @@ class OrderServiceTest {
         service.applyPaymentResult(new PaymentEvent(existing.id(), PaymentEvent.Result.SUCCEEDED, null));
 
         verify(orders, never()).save(any());
+        verify(events, never()).publish(any(), any());
+    }
+
+    @Test
+    void shipsPaidOrder() {
+        Order existing = existingOrder(OrderStatus.PAID);
+
+        Order shipped = service.ship(existing.id(), "UPS", "1Z999");
+
+        assertThat(shipped.status()).isEqualTo(OrderStatus.SHIPPED);
+        assertThat(shipped.shipment()).isEqualTo(new Shipment("UPS", "1Z999", NOW));
+        verify(orders).save(OrderDocument.fromDomain(shipped));
+        verify(audit).save(any());
+        verify(events).publish(OrderEvent.ORDER_STATUS_CHANGED, shipped);
+    }
+
+    @Test
+    void cannotShipUnpaidOrder() {
+        Order existing = existingOrder(OrderStatus.CREATED);
+
+        assertThatThrownBy(() -> service.ship(existing.id(), "UPS", "1Z999"))
+                .isInstanceOf(InvalidOrderStateException.class);
         verify(events, never()).publish(any(), any());
     }
 

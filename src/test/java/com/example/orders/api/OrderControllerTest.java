@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.orders.domain.Order;
 import com.example.orders.domain.OrderItem;
 import com.example.orders.domain.OrderStatus;
+import com.example.orders.domain.Shipment;
+import com.example.orders.service.InvalidOrderStateException;
 import com.example.orders.service.OrderNotFoundException;
 import com.example.orders.service.OrderService;
 import java.math.BigDecimal;
@@ -56,6 +58,41 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"customerId\":\"c-1\",\"items\":[]}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shipReturnsShippedOrder() throws Exception {
+        Instant now = Instant.parse("2026-01-01T00:00:00Z");
+        var order = new Order("o-1", "c-1", List.of(new OrderItem("SKU-1", 1, BigDecimal.TEN)),
+                OrderStatus.SHIPPED, now, now, new Shipment("UPS", "1Z999", now));
+        when(orderService.ship("o-1", "UPS", "1Z999")).thenReturn(order);
+
+        mvc.perform(post("/api/orders/o-1/ship")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"carrier\":\"UPS\",\"trackingNumber\":\"1Z999\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SHIPPED"))
+                .andExpect(jsonPath("$.shipment.carrier").value("UPS"))
+                .andExpect(jsonPath("$.shipment.trackingNumber").value("1Z999"));
+    }
+
+    @Test
+    void shipRequiresCarrierAndTrackingNumber() throws Exception {
+        mvc.perform(post("/api/orders/o-1/ship")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"carrier\":\" \"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shipUnpaidOrderReturns409() throws Exception {
+        when(orderService.ship(eq("o-1"), any(), any()))
+                .thenThrow(new InvalidOrderStateException("Only PAID orders can be shipped, was CREATED"));
+
+        mvc.perform(post("/api/orders/o-1/ship")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"carrier\":\"UPS\",\"trackingNumber\":\"1Z999\"}"))
+                .andExpect(status().isConflict());
     }
 
     @Test
