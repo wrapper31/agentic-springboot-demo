@@ -40,6 +40,7 @@ Every transition is saved to MongoDB, audited in DynamoDB, then published to `or
 
 ## Agent tooling
 
+- [`docs/PLAYBOOK.md`](docs/PLAYBOOK.md): how to roll this out to restricted enterprise services.
 - `CLAUDE.md`: architecture, layering rules and conventions for AI coding agents.
 - `tools/codebase-mcp`: a Spring AI MCP server exposing endpoints, Kafka topics, data models and
   type usages of any Spring Boot codebase. See its [README](tools/codebase-mcp/README.md).
