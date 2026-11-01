@@ -12,7 +12,8 @@ representative of production code rather than clever.
 ## Commands
 
 ```bash
-mvn -B verify                                   # full build: unit, web, architecture and integration tests
+mvn -B verify                                   # full build: unit, web, architecture, integration tests + JaCoCo gate
+python3 scripts/coverage-summary.py             # coverage per package, after verify
 mvn -B test -Dtest=OrderServiceTest             # one test class
 mvn -B test -Dtest='!OrderFlowIntegrationTest'  # everything except the Docker-based test (fast loop)
 mvn -B compile                                  # quick compile check
@@ -74,8 +75,20 @@ These rules are enforced by `ArchitectureTest` (ArchUnit). Fix the design, never
 | end to end | `@SpringBootTest` + `TestcontainersConfiguration` | `OrderFlowIntegrationTest` |
 | architecture | ArchUnit | `ArchitectureTest` |
 
+`mvn -B verify` enforces a JaCoCo coverage gate (line and branch minimums in `pom.xml`, set at the
+measured baseline). Raise the minimums when coverage improves; never lower them to get a build green.
+The HTML report is in `target/site/jacoco/index.html`.
+
 When adding a feature, add or extend a test at each layer you touched. A new endpoint needs a
 `@WebMvcTest` case; new Kafka behaviour needs coverage in the integration test.
+
+## Agent delivery pipeline
+
+Requirement to merge is split across four agents in `.claude/agents/` (architect, developer,
+test-engineer, code-reviewer), each with its own lane. Run it locally with `/pipeline <issue>` or in
+GitHub Actions by labelling an issue `agent-pipeline` (`.github/workflows/agent-pipeline.yml`).
+Designs live in `docs/designs/`. Two human gates: design approval and merge approval. Agents never
+approve or merge. Walkthrough: `docs/LESSON-agent-pipeline.md`.
 
 ## Adding a typical feature (checklist)
 

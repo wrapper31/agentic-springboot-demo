@@ -43,13 +43,16 @@ Every transition is saved to MongoDB, audited in DynamoDB, then published to `or
 - `CLAUDE.md`: architecture, layering rules and conventions for AI coding agents.
 - `tools/codebase-mcp`: a Spring AI MCP server exposing endpoints, Kafka topics, data models and
   type usages of any Spring Boot codebase. See its [README](tools/codebase-mcp/README.md).
+- Agent delivery pipeline: requirement, tech design, code, tests with a JaCoCo coverage gate, AI code
+  review, human approval and merge. Agents in `.claude/agents/`, `/pipeline` for local runs,
+  `.github/workflows/agent-pipeline.yml` for CI. Hands-on lesson: [docs/LESSON-agent-pipeline.md](docs/LESSON-agent-pipeline.md).
 
 ## Build and test
 
 Requires Java 21 and Docker.
 
 ```bash
-mvn verify            # unit, web-layer and Testcontainers integration tests
+mvn verify            # unit, web-layer and Testcontainers integration tests, plus the JaCoCo coverage gate
 ```
 
 ## Run locally
